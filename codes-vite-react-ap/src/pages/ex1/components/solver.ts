@@ -89,7 +89,6 @@ function generatePossibleMoves(state: number[][], n: number, a: number): Move[] 
             }
           }
 
-          // 如果无法在同一车道内向左移动，再尝试其他移动方案
           // 尝试在同一车道内向右移动
           for (let toSpace = fromSpace + 1; toSpace < a; toSpace++) {
             if (state[fromLane][toSpace] === 0) {

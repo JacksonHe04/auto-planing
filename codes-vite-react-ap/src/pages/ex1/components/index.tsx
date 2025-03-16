@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import './styles.css';
 import { solveParkingProblem } from './solver';
 
+// 车道和车位的状态
 interface CarLaneProps {
   laneCount: number;
   spaceCount: number;
   onStateChange: (state: number[][]) => void;
 }
 
+// 车辆车道组件
 const CarLane: React.FC<CarLaneProps> = ({ laneCount, spaceCount, onStateChange }) => {
-  const [state, setState] = useState<number[][]>(() => 
+  const [state, setState] = useState<number[][]>(() =>
     Array(laneCount).fill(null).map(() => Array(spaceCount).fill(0))
   );
 
@@ -20,6 +22,7 @@ const CarLane: React.FC<CarLaneProps> = ({ laneCount, spaceCount, onStateChange 
     onStateChange(newState);
   }, [laneCount, spaceCount, onStateChange]);
 
+  // 处理车辆数量输入框的变化
   const handleCarNumberChange = (laneIndex: number, spaceIndex: number, value: string) => {
     const newState = [...state];
     newState[laneIndex][spaceIndex] = parseInt(value) || 0;
@@ -27,6 +30,7 @@ const CarLane: React.FC<CarLaneProps> = ({ laneCount, spaceCount, onStateChange 
     onStateChange(newState);
   };
 
+  // 动态渲染车辆车道
   return (
     <div className="car-lane">
       {state.map((lane, laneIndex) => (
@@ -47,13 +51,15 @@ const CarLane: React.FC<CarLaneProps> = ({ laneCount, spaceCount, onStateChange 
   );
 };
 
+// 车辆移动问题组件
 const VehicleMovementProblem: React.FC = () => {
-  const [laneCount, setLaneCount] = useState(2);
-  const [spaceCount, setSpaceCount] = useState(3);
-  const [initialState, setInitialState] = useState<number[][]>([]);
-  const [targetState, setTargetState] = useState<number[][]>([]);
-  const [movementSteps, setMovementSteps] = useState<string[]>([]);
+  const [laneCount, setLaneCount] = useState(2); // 车道数量
+  const [spaceCount, setSpaceCount] = useState(3); // 每个车道的车位数量
+  const [initialState, setInitialState] = useState<number[][]>([]); // 初始状态
+  const [targetState, setTargetState] = useState<number[][]>([]); // 目标状态
+  const [movementSteps, setMovementSteps] = useState<string[]>([]); // 移动步骤
 
+  // 处理求解按钮点击事件
   const handleSolve = () => {
     const solution = solveParkingProblem(laneCount, spaceCount, initialState, targetState);
     if (solution) {

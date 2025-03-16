@@ -28,11 +28,16 @@
 .car-lane {
   border: 1px solid #ccc;
   padding: 10px;
+  border-right: none;
 }
 
 .lane {
   display: flex;
   margin-bottom: 10px;
+}
+
+.car-lane .lane:last-child {
+  margin-bottom: 0;
 }
 
 .car-space {

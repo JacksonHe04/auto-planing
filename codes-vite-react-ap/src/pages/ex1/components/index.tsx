@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './styles.css';
-import { solveParkingProblem } from './solver';
+// 在文件开头添加 A* 算法的导入
+import { solveParkingProblem } from './scripts/solverBFS';
+import { solveParkingProblemAStar } from './scripts/solverA*';
 
 // 车道和车位的状态
 interface CarLaneProps {
@@ -53,15 +55,22 @@ const CarLane: React.FC<CarLaneProps> = ({ laneCount, spaceCount, onStateChange 
 
 // 车辆移动问题组件
 const VehicleMovementProblem: React.FC = () => {
-  const [laneCount, setLaneCount] = useState(2); // 车道数量
-  const [spaceCount, setSpaceCount] = useState(3); // 每个车道的车位数量
-  const [initialState, setInitialState] = useState<number[][]>([]); // 初始状态
-  const [targetState, setTargetState] = useState<number[][]>([]); // 目标状态
-  const [movementSteps, setMovementSteps] = useState<string[]>([]); // 移动步骤
+  const [laneCount, setLaneCount] = useState(2);
+  const [spaceCount, setSpaceCount] = useState(3);
+  const [initialState, setInitialState] = useState<number[][]>([]);
+  const [targetState, setTargetState] = useState<number[][]>([]);
+  const [movementSteps, setMovementSteps] = useState<string[]>([]);
+  
+  // 添加一个新的状态来区分不同算法的结果
+  const [algorithmType, setAlgorithmType] = useState<'BFS' | 'A*'>('BFS');
 
-  // 处理求解按钮点击事件
-  const handleSolve = () => {
-    const solution = solveParkingProblem(laneCount, spaceCount, initialState, targetState);
+  // 修改原有的 handleSolve 函数
+  const handleSolve = (type: 'BFS' | 'A*') => {
+    setAlgorithmType(type);
+    const solution = type === 'BFS' 
+      ? solveParkingProblem(laneCount, spaceCount, initialState, targetState)
+      : solveParkingProblemAStar(laneCount, spaceCount, initialState, targetState);
+
     if (solution) {
       const steps = solution.map((move, index) => {
         const fromLane = move.from.lane + 1;
@@ -109,9 +118,12 @@ const VehicleMovementProblem: React.FC = () => {
           <CarLane laneCount={laneCount} spaceCount={spaceCount} onStateChange={setTargetState} />
         </div>
       </div>
-      <button onClick={handleSolve}>求解</button>
+      <div className="button-group">
+        <button onClick={() => handleSolve('BFS')}>使用BFS算法求解</button>
+        <button onClick={() => handleSolve('A*')}>使用A*算法求解</button>
+      </div>
       <div className="movement-steps">
-        <h3>移动步骤</h3>
+        <h3>移动步骤 ({algorithmType}算法)</h3>
         <ul>
           {movementSteps.map((step, index) => (
             <li key={index}>{step}</li>

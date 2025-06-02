@@ -1,54 +1,266 @@
-# React + TypeScript + Vite
+# 自动规划系统
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+这是一个基于多种规划方法的自动规划系统实现，包含了多个经典规划问题的解决方案。本项目实现了多种规划方法，包括 TypeScript 实现的车辆搬运规划、PDDL 实现的经典规划问题等。
 
-Currently, two official plugins are available:
+## 实验内容
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 实验一：车辆搬运规划（TypeScript + React）
 
-## Expanding the ESLint configuration
+#### 1. 规划问题定义
+- **流的描述**：
+  - 交互式车辆重排系统
+  - 支持用户自定义车道数量和车位数量
+  - 可设置初始状态和目标状态
+  - 提供 BFS 和 A* 两种算法求解最优移动序列
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **动作描述**：
+  1. 同一车道内移动：车辆可在同一车道内左右移动，前提是路径无阻挡
+  2. 跨车道移动：车辆可移动到其他车道的空位，前提是原车道右侧无阻挡，且目标位置右侧无阻挡
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- **初始环境**：
+  - 可配置车道数量（默认2条）
+  - 可配置每个车道的车位数量（默认3个）
+  - 可设置每个位置上的车辆编号（0表示空位）
+
+- **目标环境**：
+  - 与初始状态相同的车道和车位数量
+  - 可设置期望的车辆分布状态
+
+#### 2. 规划算法实现
+- **BFS算法**：
+  - 使用队列进行状态空间搜索
+  - 保证找到最短路径（最少移动次数）
+  - 使用Set记录已访问状态避免重复搜索
+
+- **A*算法**：
+  - 使用启发式函数估计到目标状态的代价
+  - 启发式函数考虑：
+    * 曼哈顿距离：车辆到目标位置的直线距离
+    * 车道变换惩罚：跨车道移动增加额外代价
+    * 阻挡惩罚：路径上有其他车辆阻挡增加代价
+  - 使用优先队列选择最优状态进行扩展
+
+### 实验二：经典规划（PDDL）
+
+#### 1. 规划问题定义
+- **流的描述**：
+  - 五层楼、两部电梯的调度系统
+  - 处理所有楼层的服务请求
+  - 最终将电梯分别停靠在指定位置
+
+- **动作描述**：
+  1. move-up：电梯向上移动一层
+  2. move-down：电梯向下移动一层
+  3. serve：电梯在当前楼层提供服务
+
+- **初始环境**：
+  - 两部电梯初始位置都在一层
+  - 所有楼层都有服务请求
+  - 所有楼层都未被服务
+
+- **目标环境**：
+  - 所有楼层都已被服务
+  - 电梯1停在一层
+  - 电梯2停在五层
+
+### 实验三：赛车赛道规划
+
+#### 1. 规划问题定义
+- **流的描述**：
+  - 车辆在二维网格上移动
+  - 状态由位置坐标(x,y)和速度向量(vx,vy)组成
+  - 每个时间步可调整x或y方向的速度，调整幅度为±1
+  - 需要避开障碍物并到达目标区域
+
+- **动作描述**：
+  1. adjust-vx：调整x方向速度
+  2. adjust-vy：调整y方向速度
+  3. move：移动车辆
+
+- **初始环境**：
+  - 车辆初始位置：(x0, y0)
+  - 初始速度：vx = v0, vy = v0
+  - 障碍物位置：(x2, y2)
+  - 目标区域：(x4, y4)
+
+### 实验四：电梯系统规划
+
+#### 1. 规划问题定义
+- **流的描述**：
+  - 电梯系统中的状态变化
+  - 包括电梯位置、乘客位置、乘坐状态等
+
+- **动作描述**：
+  1. move-up：电梯向上移动一层
+  2. move-down：电梯向下移动一层
+  3. board：乘客进入电梯
+  4. leave：乘客离开电梯
+
+- **初始环境**：
+  - 电梯e1位于1楼
+  - 乘客p1位于1楼
+  - 乘客p2位于3楼
+  - 楼层相邻关系定义
+
+### 实验六：数值-时间规划
+
+#### 1. 规划问题定义
+- **流的描述**：
+  - 车辆搬运问题的时间规划
+  - 考虑每个动作的执行时间
+  - 优化总执行时间
+
+- **动作描述**：
+  1. move-right：向右移动
+  2. move-left：向左移动
+  3. move-to-other-lane：换道移动
+
+- **时间规划尝试**：
+  1. 使用数值函数跟踪时间
+  2. 使用动作成本表示时间
+  3. 回退到基本STRIPS规划
+
+## 技术实现
+
+### 前端实现（TypeScript + React）
+- 使用TypeScript提供类型安全
+- React组件化设计
+- 实时可视化规划过程
+- 支持用户交互配置
+
+### PDDL实现
+- 使用标准PDDL语法
+- 支持类型系统
+- 尝试实现数值规划
+- 使用FF和LAMA规划器
+
+## 项目结构
+
+```
+.
+├── pddl/                # PDDL 规划问题实现
+│   ├── ex1/            # 车辆搬运规划
+│   ├── ex2/            # 电梯调度规划
+│   ├── ex3/            # 赛车赛道规划
+│   ├── ex4/            # 电梯系统规划
+│   └── ex6/            # 数值-时间规划
+└── src/                # TypeScript + React 实现
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 快速开始
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 前端应用
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+1. 安装依赖：
+```bash
+npm install
 ```
+
+2. 启动开发服务器：
+```bash
+npm start
+```
+
+3. 访问应用：
+打开浏览器访问 `http://localhost:3000`
+
+### PDDL 规划问题
+
+1. 安装规划器：
+```bash
+# 安装 FF 规划器
+sudo apt-get install ff
+
+# 或安装 LAMA 规划器
+sudo apt-get install lama
+```
+
+2. 运行规划问题：
+```bash
+# 使用 FF 规划器
+ff -o domain.pddl -f problem.pddl
+
+# 使用 LAMA 规划器
+lama domain.pddl problem.pddl
+```
+
+## 算法分析
+
+### 通用性
+- 支持多种规划问题
+- 可扩展性强
+- 支持自定义约束
+
+### 完备性
+- BFS算法保证找到最短路径
+- A*算法在启发式函数可采纳时保证最优解
+- PDDL规划器保证找到可行解
+
+### 计算复杂度
+- BFS：O(b^d)，b为分支因子，d为解深度
+- A*：O(|E|)，|E|为状态空间大小
+- PDDL：与问题规模相关
+
+### 正确性
+- 严格的类型检查
+- 完整的状态验证
+- 动作前置条件检查
+
+### 最优性
+- BFS保证最少移动次数
+- A*保证最优解
+- PDDL规划器尝试找到最优解
+
+## 不足与改进方向
+
+### 当前不足
+1. 性能限制：
+   - 状态空间可能随问题规模指数增长
+   - 大规模问题求解时间较长
+
+2. 功能限制：
+   - 不支持车辆移动的时间成本
+   - 不支持车辆移动的物理约束
+   - 不支持动态障碍物
+
+3. 用户体验：
+   - 大规模问题求解时间可能较长
+   - 缺乏可视化动画展示
+
+### 改进方向
+1. 算法优化：
+   - 改进启发式函数
+   - 实现并行计算
+   - 优化状态空间搜索
+
+2. 功能扩展：
+   - 添加时间约束
+   - 支持物理约束
+   - 实现动态规划
+
+3. 用户体验：
+   - 添加动画展示
+   - 优化交互界面
+   - 提供更多配置选项
+
+## 贡献指南
+
+1. Fork 本仓库
+2. 创建特性分支
+3. 提交更改
+4. 推送到分支
+5. 创建 Pull Request
+
+## 许可证
+
+MIT License
+
+## 作者
+
+[您的名字]
+
+## 致谢
+
+- FF 规划器团队
+- LAMA 规划器团队
+- PDDL 社区

@@ -255,10 +255,6 @@ lama domain.pddl problem.pddl
 
 MIT License
 
-## 作者
-
-[您的名字]
-
 ## 致谢
 
 - FF 规划器团队
